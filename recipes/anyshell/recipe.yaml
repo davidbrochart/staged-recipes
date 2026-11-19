@@ -1,0 +1,57 @@
+context:
+  version: "0.5.0"
+
+package:
+  name: anyshell
+  version: ${{ version }}
+
+source:
+  url: https://pypi.org/packages/source/a/anyshell/anyshell-${{ version }}.tar.gz
+  sha256: ce5069ff5e58d2e39029dfaf7c9d14b37549408f26e643efd9fd05d51533c31c
+
+build:
+  number: 0
+  noarch: python
+  script: python -m pip install . -vv --no-deps --no-build-isolation
+  python:
+    entry_points:
+      - anyshell = anyshell.__main__:main
+
+requirements:
+  host:
+    - python ${{ python_min }}.*
+    - pip
+    - uv-build >=0.13.5,<0.14
+  run:
+    - python >=${{ python_min }}
+    - anyio >=4.11,<5
+    - cyclopts >=5.4,<6
+  run_constraints:
+    - anytext >=9.2.1,<10
+    - trio >=0.31
+
+tests:
+  - python:
+      imports:
+        - anyshell
+      pip_check: true
+      python_version:
+        - ${{ python_min }}.*
+        - "*"
+  - script:
+      - anyshell --help
+      - anyshell -c "echo hello"
+    requirements:
+      run:
+        - python ${{ python_min }}.*
+
+about:
+  homepage: https://github.com/davidbrochart/anyshell
+  summary: An async Python command shell
+  license: MIT
+  license_file: LICENSE
+  repository: https://github.com/davidbrochart/anyshell
+
+extra:
+  recipe-maintainers:
+    - davidbrochart
