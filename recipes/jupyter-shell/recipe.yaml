@@ -1,0 +1,63 @@
+context:
+  version: "0.1.0"
+
+package:
+  name: jupyter-shell
+  version: ${{ version }}
+
+source:
+  url: https://pypi.org/packages/source/j/jupyter-shell/jupyter_shell-${{ version }}.tar.gz
+  sha256: 809cf7e6c6d816ed63c01c75f0a1ea70b6daf958a09c172f57bbb1cd09d5aa34
+
+build:
+  number: 0
+  noarch: python
+  script: python -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python ${{ python_min }}.*
+    - pip
+    - uv-build >=0.13.5,<0.14
+  run:
+    - python >=${{ python_min }}
+    - anyio >=4.11,<5
+    - anyshell >=0.4
+    - anytext >=9.3
+    - fastapi >=0.115
+    - fps >=0.6
+    - jupyverse-api >=0.15,<0.16
+    - jupyverse-auth >=0.2,<0.3
+    - jupyverse-terminals >=0.2,<0.3
+    - libghostty-py >=0.3,<0.4
+
+tests:
+  - python:
+      imports:
+        - jupyter_shell
+        - jupyter_shell.main
+      pip_check: true
+      python_version:
+        - ${{ python_min }}.*
+        - "*"
+  - script:
+      - >-
+        python -c "from importlib.metadata import distribution;
+        from jupyter_shell.main import ShellModule;
+        entry_points = distribution('jupyter-shell').entry_points;
+        assert entry_points.select(group='fps.modules', name='shell')['shell'].load() is ShellModule;
+        assert entry_points.select(group='jupyverse.modules', name='shell')['shell'].load() is ShellModule"
+    requirements:
+      run:
+        - python ${{ python_min }}.*
+
+about:
+  homepage: https://github.com/davidbrochart/jupyter-shell
+  summary: An Anyshell terminal plugin for Jupyverse
+  license: MIT
+  license_file: LICENSE
+  repository: https://github.com/davidbrochart/jupyter-shell
+
+extra:
+  recipe-maintainers:
+    - davidbrochart
